@@ -230,6 +230,30 @@
             object-fit: cover;
         }
         
+        .sound-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            font-size: 1.3em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .sound-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+        
         .question-text {
             font-size: 1.1em;
             color: #ffd93d;
@@ -638,6 +662,7 @@
             
             <div class="video-container">
                 <video id="testVideo" muted playsinline></video>
+                <button class="sound-btn" id="soundBtn" onclick="toggleSound()">🔇</button>
                 <div class="feedback-overlay" id="feedbackOverlay">
                     <div class="feedback-text" id="feedbackText"></div>
                 </div>
@@ -742,8 +767,17 @@
         let currentQuestion = 0;
         let score = 0;
         let answered = false;
+        let isMuted = true; // 默认静音
         
         const video = document.getElementById('testVideo');
+        const soundBtn = document.getElementById('soundBtn');
+        
+        // 切换声音
+        function toggleSound() {
+            isMuted = !isMuted;
+            video.muted = isMuted;
+            soundBtn.textContent = isMuted ? '🔇' : '🔊';
+        }
         
         // 页面导航
         function goToScreen(screenNum) {
