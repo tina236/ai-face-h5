@@ -594,6 +594,37 @@
             color: #ff6b6b;
         }
         
+        /* 解析区域 */
+        .explanation-box {
+            background: rgba(255, 215, 61, 0.1);
+            border: 1px solid rgba(255, 215, 61, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            max-width: 320px;
+            width: 100%;
+            display: none;
+            text-align: left;
+        }
+        
+        .explanation-box.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .explanation-title {
+            color: #ffd93d;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+        
+        .explanation-content {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.85em;
+            line-height: 1.6;
+        }
+        
         /* 底部进度 */
         .bottom-progress {
             display: flex;
@@ -669,6 +700,12 @@
             </div>
             
             <p class="question-text">这个画面中的人是？</p>
+            
+            <!-- 解析显示区域 -->
+            <div class="explanation-box" id="explanationBox">
+                <div class="explanation-title">💡 解析</div>
+                <div class="explanation-content" id="explanationContent"></div>
+            </div>
             
             <div class="answer-buttons">
                 <button class="answer-btn real" onclick="checkAnswer('real')">👤 真人</button>
@@ -764,6 +801,15 @@
             '5.mp4'
         ];
         
+        // 每道题的解析
+        const explanations = [
+            '首先，动物猫无法独自进行切菜、煮面等厨房行为，与现实严重不符。其次，视频画面色调过于浓厚，是典型的AI生成画风。',
+            '小女孩行为不符合正常人的逻辑顺序，拍照结束后才举起拍照姿势，属于AI生成视频逻辑错误。',
+            'AI人物眼神空洞僵硬，瞳孔缺少真实反光，眨眼频率过低，表情呆滞，无正常人的情绪波动。',
+            '手指形态怪异僵硬，关节不自然，是AI手部最典型的出错痕迹。嘴部边缘模糊，和字幕台词的嘴型对不上。',
+            'AI生成人物的脸部皮肤太光滑干净，完全没有毛孔、细纹，不符合正常人脸部特征。'
+        ];
+        
         let currentQuestion = 0;
         let score = 0;
         let answered = false;
@@ -831,6 +877,9 @@
             // 隐藏反馈
             document.getElementById('feedbackOverlay').classList.remove('show');
             
+            // 隐藏解析
+            document.getElementById('explanationBox').classList.remove('show');
+            
             // 加载视频
             video.src = testVideos[currentQuestion];
             video.currentTime = 0;
@@ -854,27 +903,38 @@
             // 显示反馈
             const overlay = document.getElementById('feedbackOverlay');
             const feedbackText = document.getElementById('feedbackText');
+            const explanationBox = document.getElementById('explanationBox');
+            const explanationContent = document.getElementById('explanationContent');
             
             if (correct) {
                 score++;
                 clickedBtn.classList.add('correct');
                 feedbackText.textContent = '✓';
                 feedbackText.className = 'feedback-text correct';
+                // 答对后2.5秒进入下一题
+                setTimeout(() => {
+                    currentQuestion++;
+                    loadQuestion();
+                }, 2500);
             } else {
                 clickedBtn.classList.add('wrong');
                 // 显示正确答案是AI
                 document.querySelector('.answer-btn.ai').classList.add('correct');
-                feedbackText.textContent = '✗';
+                feedbackText.textContent = '✗ 正确答案：AI';
                 feedbackText.className = 'feedback-text wrong';
+                
+                // 显示解析
+                explanationContent.textContent = explanations[currentQuestion];
+                explanationBox.classList.add('show');
+                
+                // 答错后4秒进入下一题（给更多时间阅读解析）
+                setTimeout(() => {
+                    currentQuestion++;
+                    loadQuestion();
+                }, 4000);
             }
             
             overlay.classList.add('show');
-            
-            // 2秒后进入下一题
-            setTimeout(() => {
-                currentQuestion++;
-                loadQuestion();
-            }, 2000);
         }
         
         // 显示结果
